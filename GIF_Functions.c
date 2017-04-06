@@ -6,6 +6,7 @@
  */
 #include "GIF_Functions.h"
 #include <malloc.h>
+#define DEBUG TRUE
 
 //Get handle to a gif file
 FILE * GetFile(char * cPrompt, char * cMode)
@@ -16,28 +17,6 @@ FILE * GetFile(char * cPrompt, char * cMode)
 	scanf("%s", cFileName);
 	//Open the file with the mode passed in
 	aFile = fopen(cFileName, cMode);
-	return aFile;
-}
-//debugging only - open a plane file
-FILE * GetInputFile(char * cPrompt, char * cMode)
-{
-	FILE * aFile = NULL;
-	char cFileName[256];
-	printf("%s: \n", cPrompt);
-	scanf("%s", cFileName);
-	//Open the file with the mode passed in
-	aFile = fopen("plane.gif", cMode);
-	return aFile;
-}
-//debugging only - output a p.gif file
-FILE * GetOutputFile(char * cPrompt, char * cMode)
-{
-	FILE * aFile = NULL;
-	char cFileName[256];
-	printf("%s: \n", cPrompt);
-	scanf("%s", cFileName);
-	//Open the file with the mode passed in
-	aFile = fopen("p.gif", cMode);
 	return aFile;
 }
 
@@ -88,26 +67,21 @@ void ReadHeader(IMAGE * img, FILE * infile)
 void ReadColorTable(IMAGE * img, FILE * infile)
 {
 	BOOL bSuccess = FALSE;
-	//The size of the image in bytes
-
-	//Calculate the image size (data portion of the image)
-	//imageSize = (img->ghHeader->Width*sizeof(PIXEL)) * img->ghHeader->Height;
-
 	//Allocate memory for pixel data
-	if((img->pColorTable = (PIXEL *)malloc(COLORTABLESIZE)) != NULL)
+	if((img->pColorTable = (PIXEL *)malloc(sizeof(PIXEL) * COLORTABLESIZE)) != NULL)
 	{
 		//Read in the pixel array
-		if((fread(img->pColorTable, COLORTABLESIZE, 1, infile) == 1))
+		if((fread(img->pColorTable, sizeof(PIXEL) * COLORTABLESIZE, 1, infile) == 1))
 		{
-			printf("read the color table\n");
-			printf("this color table is %d in size\n", (unsigned int)sizeof(img->pColorTable));
+			//printf("read the color table\n");
+			//printf("this color table is %d in size\n", (unsigned int)sizeof(img->pColorTable));
 			bSuccess = TRUE;
 		}
 	}
 	//If we failed to read
 	if(!bSuccess)
 	{
-		printf("didn't read the color table\n");
+		//printf("didn't read the color table\n");
 		//Free the header
 		if(img->ghHeader != NULL)
 		{
@@ -128,23 +102,23 @@ void ReadData(IMAGE * img, FILE * infile)
 	//how big is this whole image supposed to be??
 	fseek(infile, 0, SEEK_END);
 	int entire_file_size = ftell(infile);
-	printf("entire file size returned from fseek() is: %d\n", entire_file_size);
+	//printf("entire file size returned from fseek() is: %d\n", entire_file_size);
 	//figure out the data size for the image
 	img->iDataSize = entire_file_size - GIFHDRSIZE - (sizeof(PIXEL) * COLORTABLESIZE);
 	//reset seek to beginning of file
 	fseek(infile, 0, SEEK_SET);
 	if(fseek(infile, (GIFHDRSIZE + (sizeof(PIXEL) * COLORTABLESIZE)),SEEK_SET) == 0)
 	{
-		printf("I SEEKED the thing\n");
+		//printf("I SEEKED the thing\n");
 		//try mallocing
 		if((img->bData = (BYTE *)malloc(img->iDataSize)) != NULL)
 		{
-			printf("I could allocate space for data\n");
+			//printf("I could allocate space for data\n");
 			//try reading
 			if((fread(img->bData, img->iDataSize, 1, infile) == 1))
 			{
-				printf("i thinks i read a data\n");
-				printf("data is %d in size\n", img->iDataSize);
+				//printf("i thinks i read a data\n");
+				//printf("data is %d in size\n", img->iDataSize);
 				bSuccess = TRUE;
 			}
 		}
@@ -153,7 +127,7 @@ void ReadData(IMAGE * img, FILE * infile)
 	//If we failed to read
 	if(!bSuccess)
 	{
-		printf("I didn't read the data\n");
+		//printf("I didn't read the data\n");
 		//Free the header
 		if(img->ghHeader != NULL)
 		{
@@ -179,7 +153,7 @@ void WriteImage(IMAGE * img, FILE * outfile)
 {
 	if(img != NULL && outfile != NULL)
 	{
-		printf("think i'll write an image now\n");
+		//printf("think i'll write an image now\n");
 		//Write the header out
 		WriteHeader(img, &outfile);
 		//If the header was written correctly
@@ -196,18 +170,18 @@ void WriteHeader(IMAGE * img, FILE ** outfile)
 	BOOL bSuccess = FALSE;
 	if(img->ghHeader != NULL)
 	{
-		printf("hey i know the file is %d x %d before i write it\n", img->ghHeader->Width, img->ghHeader->Height);
+		//printf("hey i know the file is %d x %d before i write it\n", img->ghHeader->Width, img->ghHeader->Height);
 		if(fwrite(img->ghHeader, GIFHDRSIZE, 1, *outfile) == 1)
 		{
-			printf("i'm at %d now\n", (int)ftell(*outfile));
-			printf("hey i wrote the header\n");
+			//printf("i'm at %d now\n", (int)ftell(*outfile));
+			//printf("hey i wrote the header\n");
 			bSuccess = TRUE;
 		}
 	}
 	//if we failed
 	if(!bSuccess && outfile != NULL)
 	{
-		printf("couldn't write header\n");
+		//printf("couldn't write header\n");
 		fclose(*outfile);
 		outfile = NULL;
 	}
@@ -219,21 +193,20 @@ void WriteColorTable(IMAGE * img, FILE ** outfile)
 	{
 		if(fwrite(img->pColorTable,sizeof(PIXEL) * COLORTABLESIZE, 1, *outfile) == 1)
 		{
-			printf("i'm at %d now, should be 781\n", (int)ftell(*outfile));
-			printf("heck yes wrote color table\n");
+			//printf("i'm at %d now, should be 781\n", (int)ftell(*outfile));
+			//printf("heck yes wrote color table\n");
 			bSuccess = TRUE;
 		}
 	}
 	if(!bSuccess && outfile != NULL)
 	{
-		printf("couldn't write color table\n");
+		if(DEBUG){printf("couldn't write color table\n");}
 		fclose(*outfile);
 		outfile = NULL;
 	}
 }
 void WriteData(IMAGE * img, FILE * outfile)
 {
-	//TODO this isn't working right, look at this.
 	BOOL bSuccess = FALSE;
 	if(img->ghHeader != NULL && img->pColorTable != NULL && img->bData != NULL)
 	{
@@ -241,8 +214,8 @@ void WriteData(IMAGE * img, FILE * outfile)
 
 		if(fwrite(img->bData, img->iDataSize, 1, outfile) == 1)
 		{
-			printf("i'm at %d now, should be 434119\n", (int)ftell(outfile));
-			printf("oh bb wrote data\n");
+			//printf("i'm at %d now, should be 434119\n", (int)ftell(outfile));
+			//printf("oh bb wrote data\n");
 			bSuccess = TRUE;
 		}
 	}
@@ -259,32 +232,39 @@ void WriteData(IMAGE * img, FILE * outfile)
 //Functions to manipulate pixels
 //We a need a function pointer that will point to functions that can manipulate
 //a PIXEL
+//PIXEL * GetPixel(unsigned int row, unsigned int col, IMAGE * img)
+//{
+//	//Offset = size of a complete row, * num of complete rows, + num bytes
+//	//	preceding desired pixel in the last row.
+//	//unsigned int offset = (imgPtr->bmHDR->dwWidth * sizeof(PIXEL) + padding) * row + col * sizeof(PIXEL);
+//	return (PIXEL *)((BYTE*)imgPtr->bmData + offset);
+//}
 BOOL ManipImage(IMAGE * img, GIF_FUNC_PTR pixelFunc)
 {
 	BOOL bSuccess = TRUE;
-		int i = 0, j = 0;
-		if(img != NULL && pixelFunc != NULL)
+	int i = 0, j = 0;
+	if(img != NULL && pixelFunc != NULL)
+	{
+		if(img->ghHeader != NULL && img->pColorTable != NULL && img->bData != NULL)
 		{
-			if(img->ghHeader != NULL && img->bData != NULL)
+			for (i = 0; i < img->ghHeader->Height; ++i)
 			{
-				for (i = 0; i < img->ghHeader->Height; ++i)
+				for (j = 0; j < img->ghHeader->Width; ++j)
 				{
-					for (j = 0; j < img->ghHeader->Width; ++j)
-					{
-						pixelFunc(img->pColorTable + (i * img->ghHeader->Width) + j);
-					}
+					//pixelFunc(GetPixel(i,j,img));
 				}
-			}
-			else
-			{
-				bSuccess = FALSE;
 			}
 		}
 		else
 		{
 			bSuccess = FALSE;
 		}
-		return bSuccess;
+	}
+	else
+	{
+		bSuccess = FALSE;
+	}
+	return bSuccess;
 }
 
 //Free the memory that was dynamically allocated

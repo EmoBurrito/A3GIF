@@ -66,7 +66,7 @@ void WriteData(IMAGE * img, FILE * outfile);
 //Functions to manipulate pixels
 //We a need a function pointer that will point to functions that can manipulate
 //a PIXEL
-typedef BOOL (*GIF_FUNC_PTR) (PIXEL *);
+typedef void (*GIF_FUNC_PTR) (PIXEL *);
 BOOL ManipImage(IMAGE * img, GIF_FUNC_PTR pixelFunc);
 
 //Free the memory that was dynamically allocated
