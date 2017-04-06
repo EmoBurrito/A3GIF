@@ -2,7 +2,7 @@
  * gif_header.h
  *
  *  Created on: Apr 3, 2017
- *      Author: cst221
+ *      Author: cst221 & cst235
  */
 
 #ifndef GIF_FUNCTIONS_H_
@@ -44,7 +44,7 @@ typedef struct
 typedef struct
 {
 	GIF_HEADER * ghHeader; //13 bytes
-	PIXEL * pColorTable; //768 bytes
+	PIXEL * pColorTable; //768 bytes total
 	BYTE * bData;
 	int iDataSize;
 }IMAGE;
