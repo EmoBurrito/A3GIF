@@ -31,7 +31,7 @@ typedef struct
 	WORD Width; //image width in pixels
 	WORD Height; //image height in pixels
 	BYTE GCTFollows; //1 if a color table exists, 0 otherwise.
-	BYTE BackGroundColor; //index of the color in GCT used as the boarder and background color
+	BYTE BackGroundColor; //index of the border and background color
 	BYTE PixelAspectRatio; //don't use this
 }GIF_HEADER;
 

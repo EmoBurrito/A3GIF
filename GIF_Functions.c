@@ -51,7 +51,8 @@ void ReadHeader(IMAGE * img, FILE * infile)
 		if(fread(img->ghHeader, GIFHDRSIZE, 1, infile) == 1)
 		{
 			if(DEBUG){printf("read the header\n");}
-			if(DEBUG){printf("gonna be %d wide and %d high\n", img->ghHeader->Width, img->ghHeader->Height);}
+			if(DEBUG){printf("gonna be %d wide and %d high\n",
+					img->ghHeader->Width, img->ghHeader->Height);}
 			bSuccess = TRUE;
 		}
 	}
@@ -68,13 +69,14 @@ void ReadColorTable(IMAGE * img, FILE * infile)
 {
 	BOOL bSuccess = FALSE;
 	//Allocate memory for pixel data
-	if((img->pColorTable = (PIXEL *)malloc(sizeof(PIXEL) * COLORTABLESIZE)) != NULL)
+	if((img->pColorTable=(PIXEL *)malloc(sizeof(PIXEL)*COLORTABLESIZE)) != NULL)
 	{
 		//Read in the pixel array
-		if((fread(img->pColorTable, sizeof(PIXEL) * COLORTABLESIZE, 1, infile) == 1))
+		if((fread(img->pColorTable, sizeof(PIXEL)*COLORTABLESIZE,1,infile)==1))
 		{
 			if(DEBUG){printf("read the color table\n");}
-			if(DEBUG){printf("this color table is %d in size\n", (unsigned int)sizeof(img->pColorTable));}
+			if(DEBUG){printf("this color table is %d in size\n",
+					(unsigned int)sizeof(img->pColorTable));}
 			bSuccess = TRUE;
 		}
 	}
@@ -102,12 +104,13 @@ void ReadData(IMAGE * img, FILE * infile)
 	//how big is this whole image supposed to be??
 	fseek(infile, 0, SEEK_END);
 	int entire_file_size = ftell(infile);
-	if(DEBUG){printf("entire file size returned from fseek() is: %d\n", entire_file_size);}
+	if(DEBUG){printf("entire file size returned from fseek() is: %d\n",
+			entire_file_size);}
 	//figure out the data size for the image
-	img->iDataSize = entire_file_size - GIFHDRSIZE - (sizeof(PIXEL) * COLORTABLESIZE);
+	img->iDataSize = entire_file_size-GIFHDRSIZE-(sizeof(PIXEL)*COLORTABLESIZE);
 	//reset seek to beginning of file
 	fseek(infile, 0, SEEK_SET);
-	if(fseek(infile, (GIFHDRSIZE + (sizeof(PIXEL) * COLORTABLESIZE)),SEEK_SET) == 0)
+	if(fseek(infile, (GIFHDRSIZE + (sizeof(PIXEL)*COLORTABLESIZE)),SEEK_SET)==0)
 	{
 		if(DEBUG){printf("I SEEKED the thing\n");}
 		//try mallocing
@@ -170,7 +173,8 @@ void WriteHeader(IMAGE * img, FILE ** outfile)
 	BOOL bSuccess = FALSE;
 	if(img->ghHeader != NULL)
 	{
-		if(DEBUG){printf("hey i know the file is %d x %d before i write it\n",img->ghHeader->Width, img->ghHeader->Height);}
+		if(DEBUG){printf("hey i know the file is %d x %d before i write it\n",
+				img->ghHeader->Width, img->ghHeader->Height);}
 		if(fwrite(img->ghHeader, GIFHDRSIZE, 1, *outfile) == 1)
 		{
 			if(DEBUG){printf("i'm at %d now\n", (int)ftell(*outfile));}
@@ -191,9 +195,10 @@ void WriteColorTable(IMAGE * img, FILE ** outfile)
 	BOOL bSuccess = FALSE;
 	if(img->ghHeader != NULL && img->pColorTable != NULL)
 	{
-		if(fwrite(img->pColorTable,sizeof(PIXEL) * COLORTABLESIZE, 1, *outfile) == 1)
+		if(fwrite(img->pColorTable,sizeof(PIXEL)*COLORTABLESIZE,1,*outfile)==1)
 		{
-			if(DEBUG){printf("i'm at %d now, should be 781\n", (int)ftell(*outfile));}
+			if(DEBUG){printf("i'm at %d now, should be 781\n",
+					(int)ftell(*outfile));}
 			if(DEBUG){printf("heck yes wrote color table\n");}
 			bSuccess = TRUE;
 		}
@@ -212,7 +217,8 @@ void WriteData(IMAGE * img, FILE * outfile)
 	{
 		if(fwrite(img->bData, img->iDataSize, 1, outfile) == 1)
 		{
-			if(DEBUG){printf("i'm at %d now, should be 434119\n", (int)ftell(outfile));}
+			if(DEBUG){printf("i'm at %d now, should be 434119\n",
+					(int)ftell(outfile));}
 			if(DEBUG){printf("oh bb wrote data\n");}
 			bSuccess = TRUE;
 		}
@@ -236,7 +242,7 @@ BOOL ManipImage(IMAGE * img, GIF_FUNC_PTR pixelFunc)
 	int i = 0;
 	if(img != NULL && pixelFunc != NULL)
 	{
-		if(img->ghHeader != NULL && img->pColorTable != NULL && img->bData != NULL)
+		if(img->ghHeader!=NULL&&img->pColorTable!=NULL&&img->bData!=NULL)
 		{
 			while(i < COLORTABLESIZE)
 			{

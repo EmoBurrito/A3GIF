@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 //If you want true sepia, set this to TRUE. Else, colorized sepia.
-#define FUSSY FALSE
+#define FUSSY TRUE
 //////////////
 //	TESTS	//
 //////////////
